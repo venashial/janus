@@ -2,13 +2,13 @@ addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
 
-const MODRINTH_API  = 'https://api.modrinth.com/api/v1/'
+const MODRINTH_API = 'https://api.modrinth.com/api/v1/'
 const MODRINTH = 'https://modrinth.com/'
 
 const FORMAT = [
   {
     name: 'project',
-    path: ['p' , 'm'],
+    path: ['p', 'm'],
   },
   {
     name: 'version',
@@ -17,7 +17,7 @@ const FORMAT = [
   {
     name: 'user',
     path: ['u'],
-  }
+  },
 ]
 
 const HTML_PAGE = `<head>
@@ -72,7 +72,7 @@ https://m.vena.sh/u/TEZXhE2U <span># with ID</span></code></pre>
   <br /><br /><br />
   <a href="https://github.com/venashial/janus">Source on GitHub</a>
 </main>
-</body>` 
+</body>`
 
 async function handleRequest(request) {
   const path = await parsePath(new URL(request.url).pathname.replace('/', ''))
@@ -80,28 +80,33 @@ async function handleRequest(request) {
   // Project
   if (path.project) {
     return Response.redirect(MODRINTH + `mod/${path.project}`, 301)
-  
-  // Version
+
+    // Version
   } else if (path.version) {
     const request = await fetch(MODRINTH_API + `version/${path.version}`)
-    const version = await request.json() || {}
+    const version = (await request.json()) || {}
 
     if (request.status === 200 && version.mod_id) {
-      return Response.redirect(MODRINTH + `mod/${version.mod_id}/version/${path.version}`, 301)
+      return Response.redirect(
+        MODRINTH + `mod/${version.mod_id}/version/${path.version}`,
+        301,
+      )
     } else {
       return new Response('Unknown version ID', {
-        status: 400
+        status: 400,
       })
     }
 
-  // Version redirect /u/:user_id/
-  // Supports usernames
+    // Version redirect /u/:user_id/
+    // Supports usernames
   } else if (path.user) {
     return Response.redirect(MODRINTH + `user/${path.user}`, 301)
 
-  // Default explainer website
+    // Default explainer website
   } else {
-    return new Response(HTML_PAGE, {    headers: {      "content-type": "text/html;charset=UTF-8",    },  })
+    return new Response(HTML_PAGE, {
+      headers: { 'content-type': 'text/html;charset=UTF-8' },
+    })
   }
 }
 
@@ -117,6 +122,6 @@ async function parsePath(path) {
       }
     }
   } else {
-     return {}
+    return {}
   }
 }
