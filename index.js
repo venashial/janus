@@ -34,7 +34,7 @@ const HTML_PAGE = `<head>
     background-color: hsl(0, 0%, 93%);
   }
 
-  h2 {
+  h2, a {
     color: hsl(0, 0%, 38%)
   }
 
@@ -68,6 +68,9 @@ https://m.vena.sh/p/AZomiSrC <span># with ID</span></code></pre>
   <h3>Link to user</h3>
   <pre><code>https://m.vena.sh/u/jellysquid3 <span># with username</span>
 https://m.vena.sh/u/TEZXhE2U <span># with ID</span></code></pre>
+
+  <br /><br /><br />
+  <a href="https://github.com/venashial/janus">Source on GitHub</a>
 </main>
 </body>` 
 
@@ -76,7 +79,7 @@ async function handleRequest(request) {
 
   // Project
   if (path.project) {
-    return Response.redirect(MODRINTH + `mod/${path.project}`, 307)
+    return Response.redirect(MODRINTH + `mod/${path.project}`, 301)
   
   // Version
   } else if (path.version) {
@@ -84,7 +87,7 @@ async function handleRequest(request) {
     const version = await request.json() || {}
 
     if (request.status === 200 && version.mod_id) {
-      return Response.redirect(MODRINTH + `mod/${version.mod_id}/version/${path.version}`, 307)
+      return Response.redirect(MODRINTH + `mod/${version.mod_id}/version/${path.version}`, 301)
     } else {
       return new Response('Unknown version ID', {
         status: 400
@@ -94,7 +97,7 @@ async function handleRequest(request) {
   // Version redirect /u/:user_id/
   // Supports usernames
   } else if (path.user) {
-    return Response.redirect(MODRINTH + `user/${path.user}`, 307)
+    return Response.redirect(MODRINTH + `user/${path.user}`, 301)
 
   // Default explainer website
   } else {
