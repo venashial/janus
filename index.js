@@ -9,28 +9,76 @@ const FORMAT = [
   {
     name: 'project',
     path: ['p' , 'm'],
-    short: ['+']
   },
   {
     name: 'version',
     path: ['v'],
-    short: ['$']
   },
   {
     name: 'user',
     path: ['u'],
-    short: ['!']
   }
 ]
 
-async function handleRequest(request) {
-  const path = parsePath(new URL(request.url).pathname.replace('/', ''))
-  console.log(path)
+const HTML_PAGE = `<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Janus - Modrinth URL shortener</title>
+
+<style>
+  body {
+    font-family: sans-serif;
+    min-height: 100hv;
+    padding: 2rem 4rem;
+    background-color: hsl(0, 0%, 93%);
+  }
+
+  h2 {
+    color: hsl(0, 0%, 38%)
+  }
+
+  pre {
+    border-radius: 1rem;
+    padding: 1rem 1.5rem;
+    background-color: hsl(0, 0%, 24%);
+    color: white;
+    width: 80%;
+    overflow-x: auto;
+  }
+
+  span {
+    color: hsl(0, 0%, 63%);
+  }
+</style>
+</head>
+
+<body>
+<main>
+  <h2>Janus</h2>
+  <h1>How to use</h1>
+
+  <h3>Link to project</h3>
+  <pre><code>https://m.vena.sh/p/hydrogen <span># with slug</span>
+https://m.vena.sh/p/AZomiSrC <span># with ID</span></code></pre>
+
+  <h3>Link to version</h3>
+  <pre><code>https://m.vena.sh/v/gqJWYgtD <span># with ID</span></code></pre>
+
+  <h3>Link to user</h3>
+  <pre><code>https://m.vena.sh/u/jellysquid3 <span># with username</span>
+https://m.vena.sh/u/TEZXhE2U <span># with ID</span></code></pre>
+</main>
+</body>` 
+
+async function handleRequest(request) {
+  const path = await parsePath(new URL(request.url).pathname.replace('/', ''))
+
+  // Project
   if (path.project) {
     return Response.redirect(MODRINTH + `mod/${path.project}`, 307)
-    
-  // Version redirect /v/:version_id/
+  
+  // Version
   } else if (path.version) {
     const request = await fetch(MODRINTH_API + `version/${path.version}`)
     const version = await request.json() || {}
@@ -50,34 +98,22 @@ async function handleRequest(request) {
 
   // Default explainer website
   } else {
-    return new Response('Unknown path', {
-      status: 404
-    })
+    return new Response(HTML_PAGE, {    headers: {      "content-type": "text/html;charset=UTF-8",    },  })
   }
 }
 
-function parsePath(path) {
+async function parsePath(path) {
   if (path.includes('/')) {
     const path_parts = path.split('/')
 
-    FORMAT.forEach(option => {
-      option.path.forEach(path => {
-        if (path_parts[0] === path) {
+    for (const option of FORMAT) {
+      for (const option_path of option.path) {
+        if (path_parts[0] === option_path) {
           return { [option.name]: path_parts[1] }
         }
-      })
-    })
+      }
+    }
   } else {
-    FORMAT.forEach(option => {
-      option.short.forEach(short => {
-        if (path.charAt(0) === short) {
-          console.log({ [option.name]: path.substring(1) })
-          return { [option.name]: path.substring(1) }
-        }
-      })
-
-      // Nothing found
-      return {}
-    })
+     return {}
   }
 }
