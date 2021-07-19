@@ -84,9 +84,9 @@ async function handleRequest(request) {
     // Version
   } else if (path.version) {
     const request = await fetch(MODRINTH_API + `version/${path.version}`)
-    const version = (await request.json()) || {}
+    const version = request.status === 200 ? await request.json() : {}
 
-    if (request.status === 200 && version.mod_id) {
+    if (version && version.mod_id) {
       return Response.redirect(
         MODRINTH + `mod/${version.mod_id}/version/${path.version}`,
         301,
