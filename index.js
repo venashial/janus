@@ -80,9 +80,10 @@ async function handleRequest(request) {
   // Project
   if (path.project) {
     return Response.redirect(MODRINTH + `mod/${path.project}`, 301)
+  }
 
-    // Version
-  } else if (path.version) {
+  // Version
+  else if (path.version) {
     const request = await fetch(MODRINTH_API + `version/${path.version}`)
     const version = request.status === 200 ? await request.json() : {}
 
@@ -96,14 +97,16 @@ async function handleRequest(request) {
         status: 400,
       })
     }
+  }
 
-    // Version redirect /u/:user_id/
-    // Supports usernames
-  } else if (path.user) {
+  // Version redirect /u/:user_id/
+  // Supports usernames
+  else if (path.user) {
     return Response.redirect(MODRINTH + `user/${path.user}`, 301)
-
-    // Default explainer website
-  } else {
+  }
+  
+  // Default explainer website
+  else {
     return new Response(HTML_PAGE, {
       headers: { 'content-type': 'text/html;charset=UTF-8' },
     })
